@@ -7,8 +7,7 @@ import numpy as np
 import re
 
 from nltk import word_tokenize
-from nltk.stem.snowball import SnowballStemmer
-st = SnowballStemmer("english")
+from nltk.corpus import stopwords
 
 import langid
 
@@ -42,24 +41,6 @@ EMOTICONS_NEG = r"""
       [<>]?
     )"""
 
-# REGEXPS = (
-#     # ASCII Emoticons
-#     EMOTICONS_POS,
-#     EMOTICONS_NEG,
-#     # Remaining word types:
-#     r"""
-#     (?:[^\W\d_](?:[^\W\d_]|['\-_])+[^\W\d_]) # Words with apostrophes or dashes.
-#     |
-#     (?:[+\-]?\d+[,/.:-]\d+[+\-]?)  # Numbers, including fractions, decimals.
-#     |
-#     (?:[\w_]+)                     # Words without apostrophes or dashes.
-#     |
-#     (?:\S)                         # Everything else that isn't whitespace.
-#     """
-# )
-
-# WORD_RE = re.compile(r"""(%s)""" % "|".join(REGEXPS), re.VERBOSE | re.I | re.UNICODE)
-
 EMOTICON_POS_RE = re.compile(EMOTICONS_POS, re.VERBOSE | re.I | re.UNICODE)
 EMOTICON_NEG_RE = re.compile(EMOTICONS_NEG, re.VERBOSE | re.I | re.UNICODE)
 
@@ -76,7 +57,8 @@ def _excl_marks(text):
     return len([i for i, letter in enumerate(text.decode('utf8')) if letter == '!'])
 
 def _tokenize(text):
-    return [st.stem(w.lower()) for w in word_tokenize(text.decode('utf8')) if w.isalnum()]
+    res = [w.lower() for w in word_tokenize(text.decode('utf8')) if w.isalnum()]
+    return ' '.join(filter(lambda x: x not in set(stopwords.words('english')), res))
 
 def _detect(text):
     try:
@@ -108,11 +90,6 @@ def preprocess(df, size):
     # Replace NaN with 0
     df.fillna(0, inplace=True)
 
-    # # Tokenize
-    # print('Tokenizing... '),
-    # df['proc'] = df['Reviews'].apply(lambda x: _tokenize(x))
-    # print('done!')
-
     print('Extracting features...')
     
     # Number of caps words
@@ -122,12 +99,12 @@ def preprocess(df, size):
     
     # Number of positive emoticons
     print('Number of positive emoticons... '),
-    df.loc[:, 'posticon'] = df['Reviews'].apply(lambda x: _pos_emoticons(x))
+    df.loc[:, 'posicon'] = df['Reviews'].apply(lambda x: _pos_emoticons(x))
     print('done!')
 
     # Number of negative emoticons
     print('Number of negative emoticons... '),
-    df.loc[:, 'negticon'] = df['Reviews'].apply(lambda x: _neg_emoticons(x))
+    df.loc[:, 'negicon'] = df['Reviews'].apply(lambda x: _neg_emoticons(x))
     print('done!')
 
     # Number of exclamation marks
@@ -138,6 +115,11 @@ def preprocess(df, size):
     # Review length
     print('Review length... '),
     df.loc[:, 'length'] = df['Reviews'].apply(lambda x: len(x))
+    print('done!')
+
+    # Tokenize
+    print('Tokenizing... '),
+    df['proc'] = df['Reviews'].apply(lambda x: _tokenize(x))
     print('done!')
 
     return df
