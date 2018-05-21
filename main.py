@@ -20,7 +20,7 @@ from sklearn.multiclass import OneVsRestClassifier
 
 import os.path
 
-from util.process import preprocess
+from util.process import preprocess, process_text
 from util.pipeline import TextSelector, StemmedTfidfVectorizer, SentiVectorizer
 
 from pprint import PrettyPrinter as PrettyPrinter
@@ -50,7 +50,7 @@ ppl = Pipeline([
             ('std',    StandardScaler())
         ]))
     ])),
-    ('logit', OneVsRestClassifier(LogisticRegression()))
+    ('logit', LogisticRegression())
 ])
 
 def main():
@@ -93,9 +93,12 @@ def main():
         # Load model
         ppl = pickle.load(open(PICKLE_PATH, 'rb'))
 
-    pp.pprint(X_test)
     y = ppl.predict(X_test)
     print(classification_report(y, Y_test))
-    
+
+    print(ppl.predict(process_text("Excellent!!! :)")))
+    print(ppl.predict(process_text("Pretty bad :( I WANT MY MONEY BACK!!!")))
+    print(ppl.predict(process_text("It's battery life is great. It's very responsive to touch. The only issue is that sometimes the screen goes black and you have to press the top button several times to get the screen to re-illuminate.")))
+
 if __name__ == '__main__':
     main()

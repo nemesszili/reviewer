@@ -116,8 +116,8 @@ def preprocess(df, size):
     df.loc[:, 'proc'] = df['Reviews'].apply(lambda x: _tokenize(x))
     print('done!')
 
-    # Drop rows with empty reviews
-    print('Removing empty reviews... '),
+    # Drop rows with empty processed reviews
+    print('Removing empty processed reviews... '),
     df['proc'].replace('', np.nan, inplace=True)
     df.dropna(subset=['proc'], inplace=True)
     print('done!')
@@ -128,5 +128,33 @@ def preprocess(df, size):
 
     # Replace NaN with 0
     df.fillna(0, inplace=True)
+
+    return df
+
+##
+#  Process text for classification
+##
+def process_text(text):
+    print(text)
+    d = {'Reviews': [text], 'Review Votes': [0.0]}
+    df = pd.DataFrame(data=d)
+
+    # Number of caps words
+    df.loc[:, 'caps'] = df['Reviews'].apply(lambda x: _caps(x))
+    
+    # Number of positive emoticons
+    df.loc[:, 'posicon'] = df['Reviews'].apply(lambda x: _pos_emoticons(x))
+
+    # Number of negative emoticons
+    df.loc[:, 'negicon'] = df['Reviews'].apply(lambda x: _neg_emoticons(x))
+
+    # Number of exclamation marks
+    df.loc[:, 'excl'] = df['Reviews'].apply(lambda x: _excl_marks(x))
+
+    # Review length
+    df.loc[:, 'length'] = df['Reviews'].apply(lambda x: len(x))
+
+    # Tokenize
+    df.loc[:, 'proc'] = df['Reviews'].apply(lambda x: _tokenize(x))
 
     return df
