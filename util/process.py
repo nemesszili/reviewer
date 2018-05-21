@@ -58,7 +58,7 @@ def _excl_marks(text):
 
 def _tokenize(text):
     res = [w.lower() for w in word_tokenize(text.decode('utf8')) if w.isalnum()]
-    return ' '.join(filter(lambda x: x not in set(stopwords.words('english')), res))
+    return " ".join(filter(lambda x: x not in set(stopwords.words('english')), res))
 
 def _detect(text):
     try:
@@ -72,6 +72,7 @@ def _detect(text):
 def preprocess(df, size):
     # Drop rows with empty reviews
     print('Removing empty reviews... '),
+    df['Reviews'].replace('', np.nan, inplace=True)
     df.dropna(subset=['Reviews'], inplace=True)
     print('done!')
 
@@ -82,13 +83,6 @@ def preprocess(df, size):
     df.loc[:, 'lang'] = df['Reviews'].apply(lambda x: _detect(x))
     df = df[df['lang'] == 'en']
     print('done!')
-
-    # Remove unused columns
-    df.drop(df.columns[[0, 1, 2]], inplace=True, axis=1)
-    df.drop('lang', inplace=True, axis=1)
-
-    # Replace NaN with 0
-    df.fillna(0, inplace=True)
 
     print('Extracting features...')
     
@@ -119,7 +113,20 @@ def preprocess(df, size):
 
     # Tokenize
     print('Tokenizing... '),
-    df['proc'] = df['Reviews'].apply(lambda x: _tokenize(x))
+    df.loc[:, 'proc'] = df['Reviews'].apply(lambda x: _tokenize(x))
     print('done!')
+
+    # Drop rows with empty reviews
+    print('Removing empty reviews... '),
+    df['proc'].replace('', np.nan, inplace=True)
+    df.dropna(subset=['proc'], inplace=True)
+    print('done!')
+
+    # Remove unused columns
+    df.drop(df.columns[[0, 1, 2, 4]], inplace=True, axis=1)
+    df.drop('lang', inplace=True, axis=1)
+
+    # Replace NaN with 0
+    df.fillna(0, inplace=True)
 
     return df

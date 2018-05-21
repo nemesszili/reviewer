@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 
 import re
+import csv
 
 from nltk import word_tokenize
 
@@ -20,7 +21,7 @@ from sklearn.multiclass import OneVsRestClassifier
 import os.path
 
 from util.process import preprocess
-from util.pipeline import TextSelector, StemmedTfidfVectorizer
+from util.pipeline import TextSelector, StemmedTfidfVectorizer, SentiVectorizer
 
 from pprint import PrettyPrinter as PrettyPrinter
 pp = PrettyPrinter(indent=4)
@@ -28,7 +29,7 @@ pp = PrettyPrinter(indent=4)
 DATA_PATH   = './proc.csv'
 ZIP_PATH    = '../amazon-reviews-unlocked-mobile-phones.zip'
 PICKLE_PATH = './pipeline.pkl'
-SIZE        = 1000
+SIZE        = 5000
 SEED        = 42
 
 num_feat = ['caps', 'posicon', 'negicon', 'excl', 'length', 'Review Votes']
@@ -39,6 +40,10 @@ ppl = Pipeline([
         ('tfidf_feat', Pipeline([
             ('tokens', TextSelector(key='proc')),
             ('tfidf',  StemmedTfidfVectorizer(ngram_range=(1, 2)))
+        ])),
+        ('senti_feat', Pipeline([
+            ('tokens', TextSelector(key='proc')),
+            ('senti',  SentiVectorizer(ngram_range=(1, 2)))
         ])),
         ('numeric', Pipeline([
             ('select', numeric),
@@ -56,13 +61,14 @@ def main():
             # Process data
             df = pd.read_csv(ZIP_PATH, compression='zip')
             df = preprocess(df, SIZE)
-            df.to_csv('proc.csv', encoding='utf-8', index=False)
+            df.to_csv('proc.csv', encoding='utf-8', index=False, quoting=csv.QUOTE_NONNUMERIC)
+            df = pd.read_csv(DATA_PATH)
         else:
             # Import data
             df = pd.read_csv(DATA_PATH)
 
         # Select columns
-        x = df.drop(df.columns[[0, 1]], axis=1)
+        x = df.drop(df.columns[[0]], axis=1)
         y = df.iloc[:, [0]]
 
         # Split into train and test
@@ -77,15 +83,15 @@ def main():
         # Import data
         df = pd.read_csv(DATA_PATH)
 
-        # Load model
-        ppl = pickle.load(open(PICKLE_PATH, 'rb'))
-
         # Select columns
-        x = df.drop(df.columns[[0, 1]], axis=1)
+        x = df.drop(df.columns[[0]], axis=1)
         y = df.iloc[:, [0]]
 
-        # Split into train and test
+         # Split into train and test
         X_train, X_test, Y_train, Y_test = train_test_split(x, y, test_size=0.2, random_state=SEED)
+
+        # Load model
+        ppl = pickle.load(open(PICKLE_PATH, 'rb'))
 
     pp.pprint(X_test)
     y = ppl.predict(X_test)
