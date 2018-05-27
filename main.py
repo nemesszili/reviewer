@@ -16,7 +16,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.preprocessing import StandardScaler, FunctionTransformer
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, confusion_matrix
 
 import os.path
 
@@ -94,9 +94,10 @@ def main():
         ppl = pickle.load(open(PICKLE_PATH, 'rb'))
 
     y = ppl.predict(X_test)
-    print(classification_report(y, Y_test))
+    print(classification_report(Y_test, y))
+    print(confusion_matrix(Y_test, y))
 
-    plot_classification_report(classification_report(y, Y_test))
+    plot_classification_report(classification_report(Y_test, y))
     plt.savefig('test_plot_classif_report.png', dpi=200, format='png', bbox_inches='tight')
     plt.close()
 

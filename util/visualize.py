@@ -39,7 +39,6 @@ def heatmap(AUC, title, xlabel, ylabel, xticklabels, yticklabels, figure_width=4
 
     # Plot it out
     fig, ax = plt.subplots()    
-    #c = ax.pcolor(AUC, edgecolors='k', linestyle= 'dashed', linewidths=0.2, cmap='RdBu', vmin=0.0, vmax=1.0)
     c = ax.pcolor(AUC, edgecolors='k', linestyle= 'dashed', linewidths=0.2, cmap=cmap)
 
     # put the major ticks at the middle of each cell
@@ -47,7 +46,6 @@ def heatmap(AUC, title, xlabel, ylabel, xticklabels, yticklabels, figure_width=4
     ax.set_xticks(np.arange(AUC.shape[1]) + 0.5, minor=False)
 
     # set tick labels
-    #ax.set_xticklabels(np.arange(1,AUC.shape[1]+1), minor=False)
     ax.set_xticklabels(xticklabels, minor=False)
     ax.set_yticklabels(yticklabels, minor=False)
 
