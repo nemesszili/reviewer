@@ -65,7 +65,7 @@ Classification reports of several classifiers.
 |-------------------|---------|--------|--------|
 |Logistic Regression|0.73     |0.73    |0.73    |
 |SVM                |0.63     |0.48    |0.42    |
-|**Random Forest**  |**0.77** |**0.77**|**0.77**|
+|**Random Forest**  |**0.78** |**0.78**|**0.78**|
 
 Random Forest seems to perform slightly better than Logistic Regression, while SVM stays far behind.
 
