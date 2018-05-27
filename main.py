@@ -2,6 +2,7 @@
 
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 import re
 import csv
@@ -12,25 +13,20 @@ import dill
 import pickle
 
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.preprocessing import StandardScaler, FunctionTransformer
 from sklearn.metrics import classification_report
-from sklearn.multiclass import OneVsRestClassifier
 
 import os.path
 
-from util.process import preprocess, process_text
+from util.process import preprocess, process_text, resample
 from util.pipeline import TextSelector, StemmedTfidfVectorizer, SentiVectorizer
+from util.visualize import plot_classification_report
+from util.const import DATA_PATH, ZIP_PATH, PICKLE_PATH, SIZE, SEED
 
 from pprint import PrettyPrinter as PrettyPrinter
 pp = PrettyPrinter(indent=4)
-
-DATA_PATH   = './proc.csv'
-ZIP_PATH    = '../amazon-reviews-unlocked-mobile-phones.zip'
-PICKLE_PATH = './pipeline.pkl'
-SIZE        = 5000
-SEED        = 42
 
 num_feat = ['caps', 'posicon', 'negicon', 'excl', 'length', 'Review Votes']
 numeric = FunctionTransformer(lambda x: x[num_feat], validate=False)
@@ -50,7 +46,7 @@ ppl = Pipeline([
             ('std',    StandardScaler())
         ]))
     ])),
-    ('logit', LogisticRegression())
+    ('cls', RandomForestClassifier())
 ])
 
 def main():
@@ -71,6 +67,8 @@ def main():
         x = df.drop(df.columns[[0]], axis=1)
         y = df.iloc[:, [0]]
 
+        x, y = resample(df, x, y)
+
         # Split into train and test
         X_train, X_test, Y_train, Y_test = train_test_split(x, y, test_size=0.2, random_state=SEED)
 
@@ -87,6 +85,8 @@ def main():
         x = df.drop(df.columns[[0]], axis=1)
         y = df.iloc[:, [0]]
 
+        x, y = resample(df, x, y)
+
          # Split into train and test
         X_train, X_test, Y_train, Y_test = train_test_split(x, y, test_size=0.2, random_state=SEED)
 
@@ -95,6 +95,10 @@ def main():
 
     y = ppl.predict(X_test)
     print(classification_report(y, Y_test))
+
+    plot_classification_report(classification_report(y, Y_test))
+    plt.savefig('test_plot_classif_report.png', dpi=200, format='png', bbox_inches='tight')
+    plt.close()
 
     print(ppl.predict(process_text("Excellent!!! :)")))
     print(ppl.predict(process_text("Pretty bad :( I WANT MY MONEY BACK!!!")))

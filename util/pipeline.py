@@ -1,8 +1,4 @@
 # -*- coding: utf-8 -*- 
-# Based on: 
-# - https://github.com/scikit-learn/scikit-learn/blob/a24c8b46/sklearn/feature_extraction/text.py#L1125
-# - https://www.kaggle.com/metadist/work-like-a-pro-with-pipelines-and-feature-unions
-# - https://www.kaggle.com/baghern/a-deep-dive-into-sklearn-pipelines
 
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.feature_extraction.text import TfidfVectorizer

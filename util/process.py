@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*- 
-# Based on: https://www.nltk.org/_modules/nltk/tokenize/casual.html
 
 import pandas as pd
 import numpy as np
@@ -8,6 +7,9 @@ import re
 
 from nltk import word_tokenize
 from nltk.corpus import stopwords
+
+from imblearn.under_sampling import RandomUnderSampler
+from const import SEED
 
 import langid
 
@@ -158,3 +160,11 @@ def process_text(text):
     df.loc[:, 'proc'] = df['Reviews'].apply(lambda x: _tokenize(x))
 
     return df
+
+##
+#  Resample data
+## 
+def resample(df, x, y):
+    x_i = x.index.values.reshape(-1, 1)
+    _, _, i = RandomUnderSampler(ratio='all', return_indices=True, random_state=SEED).fit_sample(x_i, y.values.ravel())
+    return x.loc[df.index.isin(i)], y.loc[df.index.isin(i)]
