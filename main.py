@@ -23,10 +23,17 @@ import os.path
 from util.process import preprocess, process_text, resample
 from util.pipeline import TextSelector, StemmedTfidfVectorizer, SentiVectorizer
 from util.visualize import plot_classification_report
-from util.const import DATA_PATH, ZIP_PATH, PICKLE_PATH, SIZE, SEED
+from util.const import DATA_PATH, ZIP_PATH, PICKLE_PATH, SIZE, SEED, FULL_STAR, EMPTY_STAR
 
 from pprint import PrettyPrinter as PrettyPrinter
 pp = PrettyPrinter(indent=4)
+
+#imports for the GUI
+import sys
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import QObject, pyqtSignal
+
+from frontend import main_window_design
 
 num_feat = ['caps', 'posicon', 'negicon', 'excl', 'length', 'Review Votes']
 numeric = FunctionTransformer(lambda x: x[num_feat], validate=False)
@@ -49,12 +56,42 @@ ppl = Pipeline([
     ('cls', RandomForestClassifier())
 ])
 
+class MainWindow(QtWidgets.QMainWindow, main_window_design.Ui_MainWindow):
+    def __init__(self):
+        super(self.__class__, self).__init__()
+        self.setupUi(self)
+        self._connectsignals()
+
+    def _connectsignals(self):
+        self.predictButton.clicked.connect(self._predictButton)
+
+    def _predictButton(self):
+        #the prediction should be called here with the string read from 
+        print("Predicting")
+        review = self._readReview()
+        if review == "":
+            print("No review, stopping!")
+            return
+        # rating = ppl.predict(process_text(review))
+        rating = 3
+        self._showPrediction(rating)
+
+    def _showPrediction(self, pred):
+        str = FULL_STAR * pred
+        str += EMPTY_STAR * (5 - pred)
+        self.reviewLabel.setText(str)
+        self.thread = None
+    
+    def _readReview(self):
+        return self.reviewText.toPlainText()
+    
 def main():
     global ppl
 
     if not os.path.isfile(PICKLE_PATH):
         if not os.path.isfile(DATA_PATH):
             # Process data
+            print("Processing")
             df = pd.read_csv(ZIP_PATH, compression='zip')
             df = preprocess(df, SIZE)
             df.to_csv('proc.csv', encoding='utf-8', index=False, quoting=csv.QUOTE_NONNUMERIC)
@@ -106,4 +143,9 @@ def main():
     print(ppl.predict(process_text("It's battery life is great. It's very responsive to touch. The only issue is that sometimes the screen goes black and you have to press the top button several times to get the screen to re-illuminate.")))
 
 if __name__ == '__main__':
-    main()
+    # main()
+    app = QtWidgets.QApplication(sys.argv)
+    form = MainWindow()
+    form.show()
+    app.exec_()    
+    print("end")

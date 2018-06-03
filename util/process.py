@@ -9,7 +9,7 @@ from nltk import word_tokenize
 from nltk.corpus import stopwords
 
 from imblearn.under_sampling import RandomUnderSampler
-from const import SEED
+from .const import SEED
 
 import langid
 
