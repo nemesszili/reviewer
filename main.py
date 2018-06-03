@@ -111,9 +111,8 @@ def main():
     print(ppl.predict(process_text("It's battery life is great. It's very responsive to touch. The only issue is that sometimes the screen goes black and you have to press the top button several times to get the screen to re-illuminate.")))
 
 if __name__ == '__main__':
-    # main()
+    main()
     app = QtWidgets.QApplication(sys.argv)
-    form = MainWindow()
+    form = MainWindow(ppl)
     form.show()
-    app.exec_()    
-    print("end")
+    app.exec_()
