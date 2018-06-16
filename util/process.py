@@ -47,24 +47,24 @@ EMOTICON_POS_RE = re.compile(EMOTICONS_POS, re.VERBOSE | re.I | re.UNICODE)
 EMOTICON_NEG_RE = re.compile(EMOTICONS_NEG, re.VERBOSE | re.I | re.UNICODE)
 
 def _pos_emoticons(text):
-    return len(re.findall(EMOTICON_POS_RE, text.decode('utf8')))
+    return len(re.findall(EMOTICON_POS_RE, text))
 
 def _neg_emoticons(text):
-    return len(re.findall(EMOTICON_NEG_RE, text.decode('utf8')))
+    return len(re.findall(EMOTICON_NEG_RE, text))
 
 def _caps(text):
-    return len(filter(lambda x: x.isupper(), text.decode('utf8').split()))
+    return len(list(filter(lambda x: x.isupper(), text.split())))
 
 def _excl_marks(text):
-    return len([i for i, letter in enumerate(text.decode('utf8')) if letter == '!'])
+    return len([i for i, letter in enumerate(text) if letter == '!'])
 
 def _tokenize(text):
-    res = [w.lower() for w in word_tokenize(text.decode('utf8')) if w.isalnum()]
-    return " ".join(filter(lambda x: x not in set(stopwords.words('english')), res))
+    res = [w.lower() for w in word_tokenize(text) if w.isalnum()]
+    return " ".join(list(filter(lambda x: x not in set(stopwords.words('english')), res)))
 
 def _detect(text):
     try:
-        return langid.classify(text.decode('utf8'))[0]
+        return langid.classify(text)[0]
     except:
         return 'xx'
 
@@ -82,8 +82,8 @@ def preprocess(df, size):
 
     # Drop non-English reviews
     print('Removing non-English reviews... '),
-    df.loc[:, 'lang'] = df['Reviews'].apply(lambda x: _detect(x))
-    df = df[df['lang'] == 'en']
+    df = df.assign(lang = lambda x: _detect(x.Reviews))
+    df.loc[df['lang'] == 'en']
     print('done!')
 
     print('Extracting features...')

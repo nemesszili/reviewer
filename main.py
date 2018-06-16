@@ -9,8 +9,7 @@ import csv
 
 from nltk import word_tokenize
 
-import dill
-import pickle
+import dill as pickle
 
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
@@ -106,7 +105,7 @@ def main():
     plt.savefig('test_plot_classif_report.png', dpi=200, format='png', bbox_inches='tight')
     plt.close()
 
-    print(ppl.predict(process_text("Excellent!!! :)")))
+    print(ppl.predict(process_text("Excellent!")))
     print(ppl.predict(process_text("Pretty bad :( I WANT MY MONEY BACK!!!")))
     print(ppl.predict(process_text("It's battery life is great. It's very responsive to touch. The only issue is that sometimes the screen goes black and you have to press the top button several times to get the screen to re-illuminate.")))
 

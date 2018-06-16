@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'main_window.ui'
 #
-# Created by: PyQt5 UI code generator 5.10.1
+# Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -84,7 +84,7 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "Reviewer"))
         self.label.setText(_translate("MainWindow", " Predicted rating: "))
         self.predictButton.setText(_translate("MainWindow", "Predict"))
-        self.label_2.setText(_translate("MainWindow", "Please write a review in the text field below"))
+        self.label_2.setText(_translate("MainWindow", "Please write a review in the text field below:"))
         self.label_3.setText(_translate("MainWindow", " © Nemes Szilárd, Fleischman Raul Andor"))
 
 
